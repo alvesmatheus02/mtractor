@@ -21,22 +21,7 @@ public class eventoTipoNegPortaisFin implements EventoProgramavelJava {
 
     @Override
     public void beforeUpdate(PersistenceEvent event) throws Exception {
-        DynamicVO vo = (DynamicVO) event.getVo();
 
-        BigDecimal nuNota = vo.asBigDecimalOrZero("NUNOTA");
-        String origem = vo.asString("ORIGEM");
-
-        if (null != origem && origem.equals("E") && nuNota.compareTo(BigDecimal.ZERO) > 0) {
-            DynamicVO cabVO = cabDAO.findByPK(nuNota);
-
-            if (null != cabVO && cabVO.asBigDecimalOrZero("CODTIPVENDA").compareTo(BigDecimal.ZERO) > 0) {
-                if (!cabVO.asBigDecimalOrZero("CODTIPVENDA").equals(vo.asBigDecimalOrZero("AD_CODTIPVENDA"))) {
-                    finDAO.prepareToUpdate(vo)
-                            .set("AD_CODTIPVENDA", cabVO.asBigDecimalOrZero("CODTIPVENDA"))
-                            .update();
-                }
-            }
-        }
     }
 
     @Override
@@ -65,7 +50,22 @@ public class eventoTipoNegPortaisFin implements EventoProgramavelJava {
 
     @Override
     public void afterUpdate(PersistenceEvent event) throws Exception {
+        DynamicVO vo = (DynamicVO) event.getVo();
 
+        BigDecimal nuNota = vo.asBigDecimalOrZero("NUNOTA");
+        String origem = vo.asString("ORIGEM");
+
+        if (null != origem && origem.equals("E") && nuNota.compareTo(BigDecimal.ZERO) > 0) {
+            DynamicVO cabVO = cabDAO.findByPK(nuNota);
+
+            if (null != cabVO && cabVO.asBigDecimalOrZero("CODTIPVENDA").compareTo(BigDecimal.ZERO) > 0) {
+                if (!cabVO.asBigDecimalOrZero("CODTIPVENDA").equals(vo.asBigDecimalOrZero("AD_CODTIPVENDA"))) {
+                finDAO.prepareToUpdate(vo)
+                        .set("AD_CODTIPVENDA", cabVO.asBigDecimalOrZero("CODTIPVENDA"))
+                        .update();
+                }
+            }
+        }
     }
 
     @Override

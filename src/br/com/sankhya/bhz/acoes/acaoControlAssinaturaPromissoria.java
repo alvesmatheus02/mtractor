@@ -1,8 +1,6 @@
 package br.com.sankhya.bhz.acoes;
 
-import br.com.sankhya.applauncher.ErrorUtils;
 import br.com.sankhya.bhz.utils.AcessoBanco;
-import br.com.sankhya.bhz.utils.ErroUtils;
 import br.com.sankhya.extensions.actionbutton.AcaoRotinaJava;
 import br.com.sankhya.extensions.actionbutton.ContextoAcao;
 import br.com.sankhya.extensions.actionbutton.Registro;
@@ -12,10 +10,8 @@ import br.com.sankhya.jape.wrapper.JapeWrapper;
 import br.com.sankhya.modelcore.util.DynamicEntityNames;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
-public class acaoControlAssinaturaNF implements AcaoRotinaJava {
+public class acaoControlAssinaturaPromissoria implements AcaoRotinaJava {
     JapeWrapper cabDAO = JapeFactory.dao(DynamicEntityNames.CABECALHO_NOTA);
     @Override
     public void doAction(ContextoAcao contexto) throws Exception {
@@ -32,15 +28,15 @@ public class acaoControlAssinaturaNF implements AcaoRotinaJava {
             nuNota = (BigDecimal) linha.getCampo("NUNOTA");
 
             DynamicVO cabVO = cabDAO.findByPK(nuNota);
-            if (cabVO.asString("TIPMOV").equals("V")) {
 
+            if (cabVO.asString("TIPMOV").equals("V")) {
                 AcessoBanco acessoBanco = new AcessoBanco();
                 acessoBanco.openSession();
-                acessoBanco.update("UPDATE TGFCAB SET AD_STATUSASSINATURA = '" + statusAss + "' WHERE NUNOTA = " + nuNota);
+                acessoBanco.update("UPDATE TGFCAB SET AD_STATUSASSINATURAPROM = '"+statusAss+"' WHERE NUNOTA = "+nuNota);
                 acessoBanco.closeSession();
             }
-
-            contexto.setMensagemRetorno("Assinaturas atualizadas com sucesso!");
         }
+
+        contexto.setMensagemRetorno("Assinaturas Promissórias atualizadas com sucesso!");
     }
 }
