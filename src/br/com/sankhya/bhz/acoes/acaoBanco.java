@@ -34,7 +34,7 @@ public class acaoBanco implements AcaoRotinaJava {
                 "    V_SEQUENCIA           NUMBER;\n" +
                 "    V_CODTAB              NUMBER;\n" +
                 "    V_CLASSIFICMS         CHAR(1);\n" +
-                "\n" +
+                "    V_VLRACRESC           FLOAT := 1;\n" +
                 "\tV_TIPSUBST\t\t\t  CHAR(1);\n" +
                 "\tV_ORIGPROD            CHAR(1);\n" +
                 "\n" +
@@ -111,8 +111,8 @@ public class acaoBanco implements AcaoRotinaJava {
                 "    IF V_UTILIZAPRECO = 'S' THEN\n" +
                 "\n" +
                 "        BEGIN \n" +
-                "            SELECT UFS.CODUF AS CODUFORIGEM, UFS2.CODUF AS CODUFDESTINO, PAR.CLASSIFICMS\n" +
-                "            INTO V_CODUFORIGEM, V_CODUFDESTINO, V_CLASSIFICMS\n" +
+                "            SELECT UFS.CODUF AS CODUFORIGEM, UFS2.CODUF AS CODUFDESTINO, PAR.CLASSIFICMS, CASE WHEN UFS.CODUF != UFS2.CODUF AND PAR.CLASSIFICMS = 'C' THEN 1.1 ELSE 1 END ACRESC\n" +
+                "            INTO V_CODUFORIGEM, V_CODUFDESTINO, V_CLASSIFICMS, V_VLRACRESC\n" +
                 "            FROM TGFCAB CAB\n" +
                 "            INNER JOIN TSIEMP EMP ON EMP.CODEMP = CAB.CODEMP\n" +
                 "            INNER JOIN TSICID CID ON CID.CODCID = EMP.CODCID\n" +
@@ -197,11 +197,12 @@ public class acaoBanco implements AcaoRotinaJava {
                 "        END;\n" +
                 "\n" +
                 "        PRECOFINAL := PRECO + (PRECO * (V_ALIQUOTA / 100)); \n" +
-                "        p_Result := '{\"PRECO\":\"' || PRECOFINAL || '\"}';\n" +
+                "        p_Result := '{\"PRECO\":\"' || PRECOFINAL *V_VLRACRESC || '\"}';\n" +
                 "        RETURN;\n" +
                 "    ELSE\n" +
+                "        PRECOFINAL := PRECO;\n" +
                 "        p_Result := '{' ||\n" +
-                "                    '\"PRECO\": \"' || PRECO || '\"' ||\n" +
+                "                    '\"PRECO\": \"' || PRECOFINAL || '\"' ||\n" +
                 "                    '}';\n" +
                 "    END IF;\n" +
                 "\n" +
@@ -210,7 +211,9 @@ public class acaoBanco implements AcaoRotinaJava {
                 "EXCEPTION\n" +
                 "    WHEN OTHERS THEN\n" +
                 "        p_Result := '{\"MSG_ERRO\": \"Erro: ' || REPLACE(SQLERRM, '\"', '''') || '\"}';\n" +
-                "END;\n");
+                "END;\n" +
+                "\n" +
+                "");
 
         jdbc.closeSession();
 
