@@ -53,7 +53,6 @@ public class acaoValAltPedConf implements AcaoRotinaJava {
 
             if (null == lib1001VO && libVO.asString("REPROVADO").equals("N") && null != libVO.asTimestamp("DHLIB") && libVO.asBigDecimalOrZero("VLRLIBERADO").compareTo(BigDecimal.ZERO) > 0) {
 
-                JdbcWrapper jdbcCalc = null;
                 EntityFacade dwfEntityFacade = EntityFacadeFactory.getDWFFacade();
                 JdbcWrapper jdbc = dwfEntityFacade.getJdbcWrapper();
                 NativeSql sql = new NativeSql(jdbc);
@@ -81,23 +80,28 @@ public class acaoValAltPedConf implements AcaoRotinaJava {
                                 .set("EVENTO", BigDecimal.valueOf(1001))
                                 .set("CODUSUSOLICIT", AuthenticationInfo.getCurrent().getUserID())
                                 .set("DHSOLICIT", TimeUtils.getNow())
-                                .set("VLRATUAL", cabVO.asBigDecimalOrZero("VLRNOTA"))
+                                .set("VLRATUAL", vlrLimDisp.abs().add(vlrLimite))
                                 .set("CODCENCUS", cabVO.asBigDecimalOrZero("CODCENCUS"))
                                 .set("CODUSULIB", BigDecimal.ZERO)
                                 .set("OBSERVACAO", "Alteração pedido após confirmação do pedido, valor limite liberado de R$" + libVO.asBigDecimalOrZero("VLRLIBERADO") + ", novo valor solicitado de R$" + vlrNota + ".")
                                 .set("VLRLIMITE", BigDecimal.ZERO)
                                 .save();
 
+                        linha.setCampo("AD_PEDALTPOSCONF","S");
+
                         msgRetorno = "Solicitação de liberação de limite pós confirmação solicitada com sucesso!";
+                    } else {
+                        msgRetorno = "Pedido liberado para conferência, parceiro com limite disponível dentro da liberação.";
+
                     }
                 } else {
                     msgRetorno = "O parceiro possui limite de crédito suficiente, não sendo necessária a liberação adicional de limite de crédito.";
                 }
 
             } else if (null != lib1001VO) {
-                if (lib1001VO.asString("REPROVADO").equals("S") && null != libVO.asTimestamp("DHLIB")) {
+                if (lib1001VO.asString("REPROVADO").equals("S") && null != lib1001VO.asTimestamp("DHLIB")) {
                     ErroUtils.disparaErro("Liberação de limite de crédito após a confirmação recusada. Favor consultar a liberação existente e revisar a solicitação.");
-                } else if (lib1001VO.asString("REPROVADO").equals("N") && null == libVO.asTimestamp("DHLIB") && libVO.asBigDecimalOrZero("VLRLIBERADO").compareTo(BigDecimal.ZERO) == 0) {
+                } else if (lib1001VO.asString("REPROVADO").equals("N") && null == lib1001VO.asTimestamp("DHLIB") && lib1001VO.asBigDecimalOrZero("VLRLIBERADO").compareTo(BigDecimal.ZERO) == 0) {
                     ErroUtils.disparaErro("O pedido já possui solicitação de liberação de limite de crédito em andamento. Favor aguardar a análise.");
                 } else {
                     msgRetorno = "Liberação de crédito após a confirmação realizada com sucesso.";
