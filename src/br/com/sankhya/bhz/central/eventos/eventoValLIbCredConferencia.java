@@ -40,7 +40,9 @@ public class eventoValLIbCredConferencia implements EventoProgramavelJava {
 
         if (null != cabVO) {
             if (null != vallibCred) {
-                if (vallibCred.asString("REPROVADO").equals("S")) {
+                if (cabVO.asString("AD_PEDALTPOSCONF").equals("A")) {
+                    ErroUtils.disparaErro("O pedido foi alterado e é necessário revisão da liberação de crédito do mesmo. Favor comunicar o setor responsável e aguardar análise.");
+                } else if (vallibCred.asString("REPROVADO").equals("S")) {
                     ErroUtils.disparaErro("Liberação de limite de crédito recusada. Favor consultar a liberação existente e revisar a solicitação.");
                 } else if (vallibCred.asString("REPROVADO").equals("N") && null == vallibCred.asTimestamp("DHLIB") && vallibCred.asBigDecimalOrZero("VLRLIBERADO").compareTo(BigDecimal.ZERO) == 0) {
                     ErroUtils.disparaErro("O pedido já possui solicitação de liberação de limite de crédito em andamento. Favor aguardar a análise.");

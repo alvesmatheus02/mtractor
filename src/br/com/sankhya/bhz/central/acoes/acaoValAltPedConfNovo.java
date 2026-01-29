@@ -17,7 +17,6 @@ import java.math.BigDecimal;
 public class acaoValAltPedConfNovo implements AcaoRotinaJava {
     JapeWrapper libDAO = JapeFactory.dao(DynamicEntityNames.LIBERACAO_LIMITE);
     JapeWrapper cabDAO = JapeFactory.dao(DynamicEntityNames.CABECALHO_NOTA);
-    JapeWrapper parDAO = JapeFactory.dao(DynamicEntityNames.CABECALHO_NOTA);
 
     @Override
     public void doAction(ContextoAcao contexto) throws Exception {
