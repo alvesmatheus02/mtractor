@@ -129,7 +129,30 @@ public class regraValAltPedVenda implements Regra {
 
     @Override
     public void afterInsert(ContextoRegra ctx) throws Exception {
+        DynamicVO vo = ctx.getPrePersistEntityState().getNewVO();
 
+        boolean tgfIte = "ItemNota".equals(ctx.getPrePersistEntityState().getDao().getEntityName());
+
+        if (tgfIte) {
+            BigDecimal nuNota = vo.asBigDecimalOrZero("NUNOTA");
+
+            DynamicVO cabVO = cabDAO.findByPK(nuNota);
+            DynamicVO cabConfVO = cabConfDAO.findOne("NUNOTAORIG = ?", nuNota);
+
+            boolean pedido = cabVO.asString("TIPMOV").equals("P");
+            boolean confirmado = cabVO.asString("STATUSNOTA").equals("L");
+
+            if (pedido && confirmado) {
+                if (null != cabConfVO) {
+                    ErroUtils.disparaErro("Alterações no pedido não são permitidas após o início do processo de conferência. Solicito, por gentileza, alinhar com o setor responsável.");
+                } else {
+                    AcessoBanco acessoBanco = new AcessoBanco();
+                    acessoBanco.openSession();
+                    acessoBanco.update("UPDATE TGFCAB SET AD_PEDALTPOSCONF = 'A' WHERE NUNOTA = ?", nuNota);
+                    acessoBanco.closeSession();
+                }
+            }
+        }
     }
 
     @Override
@@ -139,6 +162,29 @@ public class regraValAltPedVenda implements Regra {
 
     @Override
     public void afterDelete(ContextoRegra ctx) throws Exception {
+        DynamicVO vo = ctx.getPrePersistEntityState().getNewVO();
 
+        boolean tgfIte = "ItemNota".equals(ctx.getPrePersistEntityState().getDao().getEntityName());
+
+        if (tgfIte) {
+            BigDecimal nuNota = vo.asBigDecimalOrZero("NUNOTA");
+
+            DynamicVO cabVO = cabDAO.findByPK(nuNota);
+            DynamicVO cabConfVO = cabConfDAO.findOne("NUNOTAORIG = ?", nuNota);
+
+            boolean pedido = cabVO.asString("TIPMOV").equals("P");
+            boolean confirmado = cabVO.asString("STATUSNOTA").equals("L");
+
+            if (pedido && confirmado) {
+                if (null != cabConfVO) {
+                    ErroUtils.disparaErro("Alterações no pedido não são permitidas após o início do processo de conferência. Solicito, por gentileza, alinhar com o setor responsável.");
+                } else {
+                    AcessoBanco acessoBanco = new AcessoBanco();
+                    acessoBanco.openSession();
+                    acessoBanco.update("UPDATE TGFCAB SET AD_PEDALTPOSCONF = 'A' WHERE NUNOTA = ?", nuNota);
+                    acessoBanco.closeSession();
+                }
+            }
+        }
     }
 }
