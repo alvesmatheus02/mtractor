@@ -11,6 +11,7 @@ import br.com.sankhya.modelcore.comercial.Regra;
 import br.com.sankhya.modelcore.util.DynamicEntityNames;
 
 import java.math.BigDecimal;
+import java.sql.ResultSet;
 import java.sql.Timestamp;
 
 public class regraValAltPedVenda implements Regra {
@@ -30,9 +31,19 @@ public class regraValAltPedVenda implements Regra {
         DynamicVO voOld = ctx.getPrePersistEntityState().getOldVO();
 
         BigDecimal nuNota = vo.asBigDecimalOrZero("NUNOTA");
+        String statusConf = "A";
 
         DynamicVO cabVO = cabDAO.findByPK(nuNota);
         DynamicVO cabConfVO = cabConfDAO.findOne("NUNOTAORIG = ?", nuNota);
+
+        AcessoBanco as = new AcessoBanco();
+        as.openSession();
+        ResultSet rs = as.findOne("SELECT NVL(SNK_GET_SATUSCONFERENCIA(?),'A') STATUSCONF FROM DUAL WHERE 1=1", nuNota);
+
+        if (null != rs) {
+            statusConf = rs.getString("STATUSCONF");
+        }
+        as.closeSession();
 
         boolean tgfIte = "ItemNota".equals(ctx.getPrePersistEntityState().getDao().getEntityName());
         boolean tgfCab = "CabecalhoNota".equals(ctx.getPrePersistEntityState().getDao().getEntityName());
@@ -49,7 +60,7 @@ public class regraValAltPedVenda implements Regra {
 
 
         if (tgfIte && pedido && confirmado) {
-            if (null != cabConfVO) {
+            if (!statusConf.equals("A") && !statusConf.equals("AC")/*null != cabConfVO && !cabConfVO.asString("STATUS").equals("A")*/) {
                 ErroUtils.disparaErro("Alterações no pedido não são permitidas após o início do processo de conferência. Solicito, por gentileza, alinhar com o setor responsável.");
             } else {
                 AcessoBanco acessoBanco = new AcessoBanco();
@@ -116,7 +127,7 @@ public class regraValAltPedVenda implements Regra {
 
             }
 
-            if (null != cabConfVO && (!vlNotaOld.equals(vlrNota) || altVlrNota)) {
+            if (!statusConf.equals("A") && !statusConf.equals("AC") /*null != cabConfVO && !cabConfVO.asString("STATUS").equals("A")*/ && (!vlNotaOld.equals(vlrNota) || altVlrNota)) {
                 ErroUtils.disparaErro("Alterações no pedido não são permitidas após o início do processo de conferência. Solicito, por gentileza, alinhar com o setor responsável.");
             }
         }
@@ -135,15 +146,25 @@ public class regraValAltPedVenda implements Regra {
 
         if (tgfIte) {
             BigDecimal nuNota = vo.asBigDecimalOrZero("NUNOTA");
+            String statusConf = "A";
 
             DynamicVO cabVO = cabDAO.findByPK(nuNota);
             DynamicVO cabConfVO = cabConfDAO.findOne("NUNOTAORIG = ?", nuNota);
+
+            AcessoBanco as = new AcessoBanco();
+            as.openSession();
+            ResultSet rs = as.findOne("SELECT NVL(SNK_GET_SATUSCONFERENCIA(?),'A') STATUSCONF FROM DUAL WHERE 1=1", nuNota);
+
+            if (null != rs) {
+                statusConf = rs.getString("STATUSCONF");
+            }
+            as.closeSession();
 
             boolean pedido = cabVO.asString("TIPMOV").equals("P");
             boolean confirmado = cabVO.asString("STATUSNOTA").equals("L");
 
             if (pedido && confirmado) {
-                if (null != cabConfVO) {
+                if (!statusConf.equals("A") && !statusConf.equals("AC") /*null != cabConfVO && !cabConfVO.asString("STATUS").equals("A")*/) {
                     ErroUtils.disparaErro("Alterações no pedido não são permitidas após o início do processo de conferência. Solicito, por gentileza, alinhar com o setor responsável.");
                 } else {
                     AcessoBanco acessoBanco = new AcessoBanco();
@@ -168,15 +189,25 @@ public class regraValAltPedVenda implements Regra {
 
         if (tgfIte) {
             BigDecimal nuNota = vo.asBigDecimalOrZero("NUNOTA");
+            String statusConf = "A";
 
             DynamicVO cabVO = cabDAO.findByPK(nuNota);
             DynamicVO cabConfVO = cabConfDAO.findOne("NUNOTAORIG = ?", nuNota);
+
+            AcessoBanco as = new AcessoBanco();
+            as.openSession();
+            ResultSet rs = as.findOne("SELECT NVL(SNK_GET_SATUSCONFERENCIA(?),'A') STATUSCONF FROM DUAL WHERE 1=1", nuNota);
+
+            if (null != rs) {
+                statusConf = rs.getString("STATUSCONF");
+            }
+            as.closeSession();
 
             boolean pedido = cabVO.asString("TIPMOV").equals("P");
             boolean confirmado = cabVO.asString("STATUSNOTA").equals("L");
 
             if (pedido && confirmado) {
-                if (null != cabConfVO) {
+                if (!statusConf.equals("A") && !statusConf.equals("AC") /*null != cabConfVO && !cabConfVO.asString("STATUS").equals("A")*/) {
                     ErroUtils.disparaErro("Alterações no pedido não são permitidas após o início do processo de conferência. Solicito, por gentileza, alinhar com o setor responsável.");
                 } else {
                     AcessoBanco acessoBanco = new AcessoBanco();
