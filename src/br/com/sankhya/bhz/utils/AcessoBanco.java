@@ -10,20 +10,24 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-/*
-    autor: Guilherme Alves
-    data: 10/11/2018
- */
-
-public class AcessoBanco {
+public class AcessoBanco implements AutoCloseable {
     private EntityFacade dwf;
     private JdbcWrapper jdbc;
     private NativeSql sql;
     private boolean aberto = false;
-
+    private boolean injetado = false;
 
     public AcessoBanco() throws SQLException {
-        this.openSession();
+        this(null);
+    }
+    public AcessoBanco(JdbcWrapper jdbc) throws SQLException {
+        if(jdbc != null) {
+            this.jdbc = jdbc;
+            aberto = true;
+            injetado = true;
+        }else{
+            this.openSession();
+        }
     }
 
     public void openSession() throws SQLException {
@@ -37,17 +41,14 @@ public class AcessoBanco {
     }
 
     public void closeSession() throws SQLException {
-        if (aberto)
+        if (aberto && !injetado)
             jdbc.closeSession();
         aberto = false;
+        NativeSql.releaseResources(sql);
     }
 
     public JdbcWrapper getJdbc() {
         return jdbc;
-    }
-
-    public NativeSql getNativeSql() {
-        return new NativeSql(jdbc);
     }
 
     public boolean isOpen() {
@@ -75,6 +76,18 @@ public class AcessoBanco {
         return null;
     }
 
+    public ResultSet findOneWithNext(String consulta, Object... params) throws Exception {
+        sql = new NativeSql(jdbc);
+        sql.appendSql(consulta);
+        for (Object param : params) {
+            sql.addParameter(param);
+        }
+        ResultSet rs = sql.executeQuery();
+        if (rs.next())
+            return rs;
+        return null;
+    }
+
     public void update(String contexto, Object... params) throws Exception {
         sql = new NativeSql(jdbc);
         sql.appendSql(contexto);
@@ -84,7 +97,21 @@ public class AcessoBanco {
         sql.executeUpdate();
     }
 
-    public void insertGeneric(String tabela, HashMap<String, Object> chaveValores) throws Exception {
+    public void update(String contexto, HashMap<String, Object> params) throws Exception {
+        sql = new NativeSql(jdbc);
+        sql.appendSql(contexto);
+        params.forEach(sql::setNamedParameter);
+        sql.executeUpdate();
+    }
+
+    public void update(Class<?> clazz, String nomeArquivoSql, HashMap<String, Object> params) throws Exception {
+        sql = new NativeSql(jdbc);
+        sql.loadSql(clazz, nomeArquivoSql);
+        params.forEach(sql::setNamedParameter);
+        sql.executeUpdate();
+    }
+
+    public void insertGeneric(String tabela, HashMap<String,Object> chaveValores) throws Exception {
         StringBuilder insert = new StringBuilder();
         StringBuilder values = new StringBuilder();
 
@@ -118,4 +145,15 @@ public class AcessoBanco {
         sql.executeUpdate();
     }
 
+    @Override
+    public void close() throws Exception {
+        closeSession();
+    }
+
+    public ResultSet findWithFileSql(Class<?> clazz, String caminho, Map<String, Object> params) throws Exception {
+        sql = new NativeSql(jdbc);
+        sql.loadSql(clazz, caminho);
+        params.forEach(sql::setNamedParameter);
+        return sql.executeQuery();
+    }
 }
