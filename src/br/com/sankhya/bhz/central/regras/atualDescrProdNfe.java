@@ -1,5 +1,6 @@
 package br.com.sankhya.bhz.central.regras;
 
+import br.com.sankhya.bhz.utils.AcessoBanco;
 import br.com.sankhya.jape.core.JapeSession;
 import br.com.sankhya.jape.vo.DynamicVO;
 import br.com.sankhya.jape.wrapper.JapeFactory;
@@ -37,9 +38,15 @@ public class atualDescrProdNfe implements Regra {
 
                     if (item.asString("AD_DESCRPRODCLI") != null && item.asString("AD_DESCRPRODCLI") != proVO.asString("DESCRPRODNFE")) {
 
-                        proDAO.prepareToUpdateByPK(item.asBigDecimalOrZero("CODPROD"))
-                                .set("DESCRPRODNFE", item.asString("AD_DESCRPRODCLI"))
-                                .update();
+//                        proDAO.prepareToUpdateByPK(item.asBigDecimalOrZero("CODPROD"))
+//                                .set("DESCRPRODNFE", item.asString("AD_DESCRPRODCLI"))
+//                                .update();
+
+                        AcessoBanco acessoBanco = new AcessoBanco();
+                        acessoBanco.openSession();
+                        acessoBanco.update("UPDATE TGFPRO SET DESCRPRODNFE = ? WHERE CODPROD = ?", item.asString("AD_DESCRPRODCLI"), item.asBigDecimalOrZero("CODPROD"));
+                        acessoBanco.closeSession();
+
                     } else if (item.asString("AD_DESCRPRODCLI") == null && proVO.asString("DESCRPROD") != proVO.asString("DESCRPRODNFE")) {
 
                         proDAO.prepareToUpdateByPK(item.asBigDecimalOrZero("CODPROD"))

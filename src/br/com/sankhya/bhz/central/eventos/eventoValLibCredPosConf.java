@@ -48,7 +48,7 @@ public class eventoValLibCredPosConf implements EventoProgramavelJava {
         if (evento.equals(BigDecimal.valueOf(3)) && tabela.equals("TGFCAB")) {
             DynamicVO cabVO = cabDAO.findOne("NUNOTA = ? AND NULLVALUE(AD_PEDALTPOSCONF,'N') != 'N'", nuChave);
 
-            if (null != cabVO) {
+            if (null != cabVO && cabVO.asString("TIPMOV").equals("P")) {
                 if (reprovado.equals("S")) {
                     cabDAO.prepareToUpdate(cabVO)
                             .set("AD_PEDALTPOSCONF", "R")
