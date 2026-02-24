@@ -1,5 +1,6 @@
 package br.com.sankhya.bhz.eventos;
 
+import br.com.sankhya.bhz.utils.AcessoBanco;
 import br.com.sankhya.extensions.eventoprogramavel.EventoProgramavelJava;
 import br.com.sankhya.jape.event.PersistenceEvent;
 import br.com.sankhya.jape.event.TransactionContext;
@@ -40,9 +41,13 @@ public class eventoTipoNegPortaisFin implements EventoProgramavelJava {
             DynamicVO cabVO = cabDAO.findByPK(nuNota);
 
             if (null != cabVO && cabVO.asBigDecimalOrZero("CODTIPVENDA").compareTo(BigDecimal.ZERO) > 0) {
-                finDAO.prepareToUpdate(vo)
-                        .set("AD_CODTIPVENDA", cabVO.asBigDecimalOrZero("CODTIPVENDA"))
-                        .update();
+                AcessoBanco acessoBanco = new AcessoBanco();
+                acessoBanco.openSession();
+                acessoBanco.update("UPDATE TGFFIN SET AD_CODTIPVENDA = ? WHERE NUFIN = ?", cabVO.asBigDecimalOrZero("CODTIPVENDA"), vo.asBigDecimalOrZero("NUFIN"));
+                acessoBanco.closeSession();
+//                finDAO.prepareToUpdate(vo)
+//                        .set("AD_CODTIPVENDA", cabVO.asBigDecimalOrZero("CODTIPVENDA"))
+//                        .update();
             }
         }
 
@@ -60,9 +65,14 @@ public class eventoTipoNegPortaisFin implements EventoProgramavelJava {
 
             if (null != cabVO && cabVO.asBigDecimalOrZero("CODTIPVENDA").compareTo(BigDecimal.ZERO) > 0) {
                 if (!cabVO.asBigDecimalOrZero("CODTIPVENDA").equals(vo.asBigDecimalOrZero("AD_CODTIPVENDA"))) {
-                finDAO.prepareToUpdate(vo)
-                        .set("AD_CODTIPVENDA", cabVO.asBigDecimalOrZero("CODTIPVENDA"))
-                        .update();
+
+                    AcessoBanco acessoBanco = new AcessoBanco();
+                    acessoBanco.openSession();
+                    acessoBanco.update("UPDATE TGFFIN SET AD_CODTIPVENDA = ? WHERE NUFIN = ?", cabVO.asBigDecimalOrZero("CODTIPVENDA"), vo.asBigDecimalOrZero("NUFIN"));
+                    acessoBanco.closeSession();
+//                finDAO.prepareToUpdate(vo)
+//                        .set("AD_CODTIPVENDA", cabVO.asBigDecimalOrZero("CODTIPVENDA"))
+//                        .update();
                 }
             }
         }
