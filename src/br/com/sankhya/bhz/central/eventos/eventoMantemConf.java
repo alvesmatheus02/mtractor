@@ -38,14 +38,17 @@ public class eventoMantemConf implements EventoProgramavelJava {
         if (vo.asBigDecimalOrZero("AD_CODCONF").equals(BigDecimal.ZERO) && null != conAntVO && !conAntVO.asBigDecimalOrZero("AD_CODCONF").equals(BigDecimal.ZERO)) {
             conDAO.prepareToUpdateByPK(vo.asBigDecimalOrZero("NUCONF"))
                     .set("AD_CODCONF", conAntVO.asBigDecimalOrZero("AD_CODCONF"))
+                    .set("AD_CODCONFSEP", conAntVO.asBigDecimalOrZero("AD_CODCONFSEP"))
                     .update();
 
             cabDAO.prepareToUpdateByPK(vo.asBigDecimalOrZero("NUNOTAORIG"))
                     .set("AD_CODCONF", conAntVO.asBigDecimalOrZero("AD_CODCONF"))
+                    .set("AD_CODCONFSEP", conAntVO.asBigDecimalOrZero("AD_CODCONFSEP"))
                     .update();
         } else if (!vo.asBigDecimalOrZero("AD_CODCONF").equals(BigDecimal.ZERO)) {
             cabDAO.prepareToUpdateByPK(vo.asBigDecimalOrZero("NUNOTAORIG"))
                     .set("AD_CODCONF", vo.asBigDecimalOrZero("AD_CODCONF"))
+                    .set("AD_CODCONFSEP", vo.asBigDecimalOrZero("AD_CODCONFSEP"))
                     .update();
         }
 
@@ -59,14 +62,17 @@ public class eventoMantemConf implements EventoProgramavelJava {
         if (vo.asBigDecimalOrZero("AD_CODCONF").equals(BigDecimal.ZERO) && null != conAntVO && !conAntVO.asBigDecimalOrZero("AD_CODCONF").equals(BigDecimal.ZERO)) {
             conDAO.prepareToUpdateByPK(vo.asBigDecimalOrZero("NUCONF"))
                     .set("AD_CODCONF", conAntVO.asBigDecimalOrZero("AD_CODCONF"))
+                    .set("AD_CODCONFSEP", conAntVO.asBigDecimalOrZero("AD_CODCONFSEP"))
                     .update();
 
             cabDAO.prepareToUpdateByPK(vo.asBigDecimalOrZero("NUNOTAORIG"))
                     .set("AD_CODCONF", conAntVO.asBigDecimalOrZero("AD_CODCONF"))
+                    .set("AD_CODCONFSEP", conAntVO.asBigDecimalOrZero("AD_CODCONFSEP"))
                     .update();
         } else if (!vo.asBigDecimalOrZero("AD_CODCONF").equals(BigDecimal.ZERO)) {
             cabDAO.prepareToUpdateByPK(vo.asBigDecimalOrZero("NUNOTAORIG"))
                     .set("AD_CODCONF", vo.asBigDecimalOrZero("AD_CODCONF"))
+                    .set("AD_CODCONFSEP", vo.asBigDecimalOrZero("AD_CODCONFSEP"))
                     .update();
         }
     }
